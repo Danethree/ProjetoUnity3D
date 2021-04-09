@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
       PlayerMovement();
-        
+        CallPlayerAttack();
     }
 
     void PlayerMovement()
@@ -47,6 +47,14 @@ public class PlayerController : MonoBehaviour
         else
         {
             anim.SetWalkAnimation(false);
+        }
+    }
+
+    void CallPlayerAttack()
+    {
+        if (Input.GetButtonDown("Fire1"))
+        {
+            anim.CallAnimationPlayerAttack();
         }
     }
 }

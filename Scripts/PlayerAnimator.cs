@@ -17,8 +17,11 @@ public class PlayerAnimator : MonoBehaviour
     {
         _animator.SetBool("isWalk",isWalk);
     }
-    void Update()
+
+    public void CallAnimationPlayerAttack()
     {
-        
+        _animator.SetTrigger("Attack");
     }
+    
+   
 }

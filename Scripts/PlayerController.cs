@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,11 +9,14 @@ public class PlayerController : MonoBehaviour
     [Header("Player Settings")] public float movementSpeed = 3f;
     private Vector3 _direction;
     private PlayerAnimator anim;
+    private CameraManager _cameraManager;
     
     void Start()
     {
+        _cameraManager = GameObject.Find("CameraManager").GetComponent<CameraManager>();
         _controller = GetComponent<CharacterController>();
         anim = GetComponent<PlayerAnimator>();
+      
     }
 
    
@@ -55,6 +59,26 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonDown("Fire1"))
         {
             anim.CallAnimationPlayerAttack();
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        switch (other.gameObject.tag)
+        {
+            case "CamTrigger":
+                _cameraManager.EnableCamB();
+                break;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        switch (other.gameObject.tag)
+        {
+            case "CamTrigger":
+                _cameraManager.DisableCamB();
+                break;
         }
     }
 }

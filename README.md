@@ -5,5 +5,9 @@
   <li> Player Movement</li>
   <li> Simple Attack</li>
   <li> Dynamic Camera using Cinemachine</li>
+  <li> Particle effect when player attacks</i>
+  <li> Enemy animations ( idle and damage)</li>
+  
+  
   
   <ul>

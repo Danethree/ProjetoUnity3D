@@ -11,7 +11,8 @@ namespace Scripts.Player
         [Header("Player Settings")] public float movementSpeed = 3f;
         private Vector3 _direction;
         private PlayerAnimator anim;
-       
+        [Header("Attack Settings")] public ParticleSystem fxAttack;
+        [SerializeField]private bool isAttack;
         
         void Start()
         {
@@ -20,26 +21,28 @@ namespace Scripts.Player
             anim = GetComponent<PlayerAnimator>();
           
         }
-    
-       
+        
         void Update()
         {
           PlayerMovement();
             CallPlayerAttack();
         }
-    
-        void PlayerMovement()
-        {
-            float horizontal = Input.GetAxis("Horizontal");
-            float vertical = Input.GetAxis("Vertical");
-            _direction = new Vector3(horizontal,0f,vertical).normalized;
-             SetPlayerAngle();
-            _controller.Move(_direction*movementSpeed*Time.deltaTime);
-    
-        }
-    
+        
+        #region MovementsOfPlayer
+            void PlayerMovement()
+            {
+                float horizontal = Input.GetAxis("Horizontal");
+                float vertical = Input.GetAxis("Vertical");
+                _direction = new Vector3(horizontal,0f,vertical).normalized;
+                SetPlayerAngle();
+                _controller.Move(_direction*movementSpeed*Time.deltaTime);
+        
+            }
+
+        #region MovementAndAngle
+            
         /*
-         * Esta função verifica em que direção o player anda e "gira" para o ângulo correto.
+         * This function verify that direction the player runs and rotate him in correct angle
          */
         void SetPlayerAngle()
         {
@@ -55,14 +58,34 @@ namespace Scripts.Player
                 anim.SetWalkAnimation(false);
             }
         }
-    
+        
+
+        #endregion
+        
+
+        #endregion
+
+        #region AttacksOfPlayer
         void CallPlayerAttack()
         {
-            if (Input.GetButtonDown("Fire1"))
+            if (Input.GetButtonDown("Fire1") && !isAttack)
             {
+                isAttack = true;
                 anim.CallAnimationPlayerAttack();
+                fxAttack.Emit(1);//Amount of particles emitteds
+               
             }
         }
+
+        public void AttackIsDone()
+        {
+            isAttack = false;
+        }
+      
+
+        #endregion
+    
+        
     
        
     }

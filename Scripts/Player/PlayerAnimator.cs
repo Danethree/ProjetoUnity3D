@@ -8,8 +8,8 @@ namespace Scripts.Player
     {
 
         private Animator _animator;
-   
 
+       
         void Start()
         {
             _animator = GetComponent<Animator>();

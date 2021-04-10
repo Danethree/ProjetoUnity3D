@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using  Scripts.Objects;
 namespace Scripts.Player
 {
     public class PlayerController : MonoBehaviour
@@ -12,7 +12,16 @@ namespace Scripts.Player
         private Vector3 _direction;
         private PlayerAnimator anim;
         [Header("Attack Settings")] public ParticleSystem fxAttack;
-        [SerializeField]private bool isAttack;
+       private bool isAttack;
+       public Transform hitBox;
+       [Range(0.2f,1)]
+       public float hitRange;
+
+       public Collider[] hitInfo;
+
+       public LayerMask hitMask;
+       public int amountDmg;
+      
         
         void Start()
         {
@@ -25,7 +34,7 @@ namespace Scripts.Player
         void Update()
         {
           PlayerMovement();
-            CallPlayerAttack();
+           InputPlayerAttack();
         }
         
         #region MovementsOfPlayer
@@ -68,12 +77,21 @@ namespace Scripts.Player
         #region AttacksOfPlayer
         void CallPlayerAttack()
         {
+            isAttack = true;
+            anim.CallAnimationPlayerAttack();
+            fxAttack.Emit(1);//Amount of particles emitteds
+            hitInfo = Physics.OverlapSphere(hitBox.position, hitRange,hitMask);
+            foreach (Collider c in hitInfo)
+            {
+                c.gameObject.SendMessage("GetHit",amountDmg,SendMessageOptions.DontRequireReceiver);
+            }
+        }
+
+        void InputPlayerAttack()
+        {
             if (Input.GetButtonDown("Fire1") && !isAttack)
             {
-                isAttack = true;
-                anim.CallAnimationPlayerAttack();
-                fxAttack.Emit(1);//Amount of particles emitteds
-               
+                CallPlayerAttack();
             }
         }
 
@@ -84,10 +102,16 @@ namespace Scripts.Player
       
 
         #endregion
-    
-        
-    
-       
+
+        private void OnDrawGizmos()
+        {
+            if (hitBox != null)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(hitBox.position,hitRange);
+            }
+           
+        }
     }
 
 }

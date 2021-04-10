@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace Scripts.Objects
 {
-    public class Grass : MonoBehaviour
+    public class Grass : MonoBehaviour,ICharComponents
     {
         public ParticleSystem fxHit;
         private bool isCut = false;
-        void GetHit(int amount)
+       public void GetHit(int amount)
         {
             if (!isCut)
             {

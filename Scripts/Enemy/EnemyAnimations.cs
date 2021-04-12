@@ -6,7 +6,8 @@ namespace Scripts.Enemy
 {
     public class EnemyAnimations : MonoBehaviour
     {
-        [SerializeField]private Animator enemyAnim;
+       private Animator enemyAnim;
+       
         // Start is called before the first frame update
         void Start()
         {
@@ -19,6 +20,15 @@ namespace Scripts.Enemy
             enemyAnim.SetTrigger("GetHit");
         }
     
+
+        #endregion
+
+        #region  EnemyDies
+        public void EnemyDieAnimation()
+        {
+            enemyAnim.SetTrigger("Die");
+        }
+        
 
         #endregion
     }

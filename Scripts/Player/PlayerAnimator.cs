@@ -24,6 +24,8 @@ namespace Scripts.Player
         {
             _animator.SetTrigger("Attack");
         }
+
+       
     
    
     }

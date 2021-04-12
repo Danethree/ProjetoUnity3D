@@ -7,6 +7,7 @@
   <li> Dynamic Camera using Cinemachine</li>
   <li> Particle effect when player attacks</i>
   <li> Enemy animations ( idle and damage)</li>
+  <li> Enemy- Damage System</li>
   
   
   

@@ -8,7 +8,7 @@
   <li> Particle effect when player attacks</i>
   <li> Enemy animations ( idle and damage)</li>
   <li> Enemy- Damage System</li>
-  
+  <li> Enemy-Patrol System</li>
   
   
   <ul>

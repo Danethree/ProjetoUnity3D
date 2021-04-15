@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Enums;
+using UnityEngine.AI;
 namespace Scripts.Enemy
 {
     public class SlimeAI : MonoBehaviour,ICharComponents
@@ -13,10 +14,12 @@ namespace Scripts.Enemy
          public EnemyState enemyState;
          public const float idleWaitTime = 3f;
          public const float patrolWaitTime = 3f;
-         
-         
+         private NavMeshAgent _agent;
+         private Vector3 _destination;
+         private int _idwayPoint;
         void Start()
         {
+            _agent = GetComponent<NavMeshAgent>();
             enemyRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
             _anim = GetComponent<EnemyAnimations>();
                 _blood = GameObject.FindWithTag("Blood").GetComponentInChildren<ParticleSystem>();
@@ -86,6 +89,8 @@ namespace Scripts.Enemy
             switch (enemyState)
             {
                 case EnemyState.IDLE:
+                    _destination = transform.position;
+                    _agent.destination = _destination;
                     StartCoroutine("IDLE");
                     break;
                 case EnemyState.ALERT:
@@ -97,31 +102,27 @@ namespace Scripts.Enemy
             }
         }
 
+       
+        
+        #endregion
         #region Behaviour of Enemy
 
         IEnumerator IDLE()
         {
-           yield return new WaitForSeconds(idleWaitTime);
-           if (Rand() < 50)
-           {
-               ChangeState(EnemyState.IDLE);
-           }
-           else
-           {
-               ChangeState(EnemyState.PATROL);
-           }
+            yield return new WaitForSeconds(idleWaitTime);
+            StayStill(50);
         }
 
         IEnumerator PATROL()
         {
+            _idwayPoint = Random.Range(0, GameManager.instance.slimeWayPoints.Length);
+            _destination = GameManager.instance.slimeWayPoints[_idwayPoint].position;
+            _agent.destination = _destination;
             yield return new WaitForSeconds(patrolWaitTime);
-            ChangeState(EnemyState.IDLE);
+            StayStill(30);
         }
         
-
         #endregion
-        #endregion
-
         #region Random function
 
         int Rand()
@@ -134,6 +135,22 @@ namespace Scripts.Enemy
 
         #endregion
        
+        
+        #region ProbabilityToChangeStateToIdleOrPatrol
+        void StayStill(int yes)
+        {
+            if (Rand() <= yes)
+            {
+                ChangeState(EnemyState.IDLE);
+            }
+            else
+            {
+                ChangeState(EnemyState.PATROL);
+            }
+        }
+        
+
+        #endregion
     }
 }
 

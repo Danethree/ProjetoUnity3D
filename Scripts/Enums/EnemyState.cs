@@ -2,6 +2,6 @@
 {
     public enum EnemyState
     {
-        IDLE,ALERT,PATROL,FOLLOW,FURY,EXPLORE
+        IDLE,ALERT,PATROL,FOLLOW,FURY
     }
 }

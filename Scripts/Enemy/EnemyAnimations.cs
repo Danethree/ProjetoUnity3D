@@ -28,7 +28,17 @@ namespace Scripts.Enemy
         {
             enemyAnim.SetTrigger("Die");
         }
-        
+
+        public void enemySetWalkAnimation(bool isWalk)
+        {
+            enemyAnim.SetBool("isWalk",isWalk);
+        }
+
+        public void enemySetAlertAnimation(bool isAlert)
+        {
+            enemyAnim.SetBool("isAlert",isAlert);
+        }
+
 
         #endregion
     }

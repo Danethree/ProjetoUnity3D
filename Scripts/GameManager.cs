@@ -10,8 +10,9 @@ public class GameManager : MonoBehaviour
 
  public Transform[] slimeWayPoints;
     public static GameManager instance;
-  
-
+    public  float slimeIdleWaitTime = 3f;
+    private Transform player;
+    public float slimeDistanceToAttack = 2.5f;
     private void Awake()
     {
 
@@ -24,9 +25,13 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-       
+        player = GameObject.Find("Player").GetComponent<Transform>();
     }
 
+    public Vector3 getPlayer()
+    {
+        return player.position;
+    }
     
     void Update()
     {

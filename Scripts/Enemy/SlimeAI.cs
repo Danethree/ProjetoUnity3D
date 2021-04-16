@@ -10,20 +10,23 @@ namespace Scripts.Enemy
         private EnemyAnimations _anim;
          private ParticleSystem _blood;
          public int _hp;
-         public SkinnedMeshRenderer enemyRenderer;
+         
          public EnemyState enemyState;
-         public const float idleWaitTime = 3f;
-         public const float patrolWaitTime = 3f;
+
+         
          private NavMeshAgent _agent;
          private Vector3 _destination;
          private int _idwayPoint;
+         private bool isAlert,isPlayerVisible;
         void Start()
         {
+            
             _agent = GetComponent<NavMeshAgent>();
-            enemyRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+           
             _anim = GetComponent<EnemyAnimations>();
                 _blood = GameObject.FindWithTag("Blood").GetComponentInChildren<ParticleSystem>();
                 _hp = 3;
+              
                 ChangeState(enemyState);
                
 
@@ -32,10 +35,30 @@ namespace Scripts.Enemy
             // Update is called once per frame
             void Update()
             {
-               
+               EnemyStatesManagement();
+               WhenSlimeWalks();
+               setAlertAnimation();
             }
 
-      
+            void setAlertAnimation()
+            {
+                _anim.enemySetAlertAnimation(isAlert);
+            }
+
+            void WhenSlimeWalks()
+            {
+                
+                if (_agent.desiredVelocity.magnitude >= 0.1f)
+                {
+                    _anim.enemySetWalkAnimation(true);
+                }
+                else
+                {
+                    
+                    _anim.enemySetWalkAnimation(false);
+                }
+                
+            }
 
       
         
@@ -45,6 +68,7 @@ namespace Scripts.Enemy
             _hp --;
             if (_hp > 0)
             {
+                ChangeState(EnemyState.FURY);
                 _anim.EnemytHit(1);
                 _blood.Emit(20);
 
@@ -69,12 +93,13 @@ namespace Scripts.Enemy
                 case EnemyState.ALERT:
                     //
                     break;
-                case EnemyState.EXPLORE:
-                    //
-                    break;
+               
                 case EnemyState.FOLLOW:
                     break;
                 case EnemyState.FURY:
+                    _destination = GameManager.instance.getPlayer();
+                    _agent.stoppingDistance = GameManager.instance.slimeDistanceToAttack;
+                    _agent.destination = _destination;
                     break;
                 case EnemyState.PATROL:
                     break;
@@ -94,9 +119,17 @@ namespace Scripts.Enemy
                     StartCoroutine("IDLE");
                     break;
                 case EnemyState.ALERT:
+                    _agent.stoppingDistance = 0;
+                    _destination = transform.position;
+                    _agent.destination = _destination;
+                    isAlert = true;
                     break;
                 case EnemyState.PATROL:
+                    _agent.stoppingDistance = 0;
                     StartCoroutine("PATROL");
+                    break;
+                case EnemyState.FURY:
+                  
                     break;
                     
             }
@@ -109,7 +142,7 @@ namespace Scripts.Enemy
 
         IEnumerator IDLE()
         {
-            yield return new WaitForSeconds(idleWaitTime);
+            yield return new WaitForSeconds(GameManager.instance.slimeIdleWaitTime);
             StayStill(50);
         }
 
@@ -118,11 +151,20 @@ namespace Scripts.Enemy
             _idwayPoint = Random.Range(0, GameManager.instance.slimeWayPoints.Length);
             _destination = GameManager.instance.slimeWayPoints[_idwayPoint].position;
             _agent.destination = _destination;
-            yield return new WaitForSeconds(patrolWaitTime);
+            yield return new WaitUntil(()=>_agent.remainingDistance <=0);
             StayStill(30);
         }
+
+        IEnumerator ALERT()
+        {
+            yield return new WaitForSeconds(GameManager.instance.slimeIdleWaitTime);
+            
+        }
+
         
         #endregion
+        
+        
         #region Random function
 
         int Rand()
@@ -151,6 +193,19 @@ namespace Scripts.Enemy
         
 
         #endregion
+        #region OnTrigger
+        void OnTriggerEnter(Collider other)
+        {
+            if (other.gameObject.tag == "Player" && enemyState!= EnemyState.FURY)
+            {
+                ChangeState(EnemyState.ALERT);
+            }
+        }
+    
+
+        #endregion
     }
+
+   
 }
 

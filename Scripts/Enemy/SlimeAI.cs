@@ -1,8 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Enums;
 using UnityEngine.AI;
+using Random = UnityEngine.Random;
+
 namespace Scripts.Enemy
 {
     public class SlimeAI : MonoBehaviour,ICharComponents
@@ -17,7 +20,7 @@ namespace Scripts.Enemy
          private NavMeshAgent _agent;
          private Vector3 _destination;
          private int _idwayPoint;
-         private bool isAlert,isPlayerVisible;
+         private bool isAlert,isPlayerVisible,isAttack;
         void Start()
         {
             
@@ -35,10 +38,12 @@ namespace Scripts.Enemy
             // Update is called once per frame
             void Update()
             {
-               EnemyStatesManagement();
+                EnemyStatesManagement();
                WhenSlimeWalks();
                setAlertAnimation();
             }
+
+        
 
             void setAlertAnimation()
             {
@@ -89,17 +94,32 @@ namespace Scripts.Enemy
             {
                 case EnemyState.IDLE:
                     //
+                    _destination = transform.position;
+                    _agent.destination = _destination;
                     break;
                 case EnemyState.ALERT:
-                    //
+                    _agent.stoppingDistance = 0;
+                    _destination = transform.position;
+                    _agent.destination = _destination;
+                    isAlert = true;
                     break;
                
                 case EnemyState.FOLLOW:
+                    _agent.stoppingDistance = GameManager.instance.slimeDistanceToAttack;
+                    _agent.destination = GameManager.instance.getPlayer();
+                    if (_agent.remainingDistance <= _agent.stoppingDistance)
+                    {
+                        Attack();
+                    }
                     break;
                 case EnemyState.FURY:
                     _destination = GameManager.instance.getPlayer();
                     _agent.stoppingDistance = GameManager.instance.slimeDistanceToAttack;
                     _agent.destination = _destination;
+                    if (_agent.remainingDistance <= _agent.stoppingDistance)
+                    {
+                        Attack();
+                    }
                     break;
                 case EnemyState.PATROL:
                     break;
@@ -111,25 +131,28 @@ namespace Scripts.Enemy
             
             StopAllCoroutines();
             enemyState = newState;
+            isAlert = false;
             switch (enemyState)
             {
                 case EnemyState.IDLE:
-                    _destination = transform.position;
-                    _agent.destination = _destination;
+                    
                     StartCoroutine("IDLE");
                     break;
                 case EnemyState.ALERT:
-                    _agent.stoppingDistance = 0;
-                    _destination = transform.position;
-                    _agent.destination = _destination;
-                    isAlert = true;
+                    
+                    StartCoroutine("ALERT");
                     break;
                 case EnemyState.PATROL:
                     _agent.stoppingDistance = 0;
                     StartCoroutine("PATROL");
                     break;
+                case EnemyState.FOLLOW:
+                    
+                    StartCoroutine("ATTACK");
+                    break;
                 case EnemyState.FURY:
                   
+                    StartCoroutine("ATTACK");
                     break;
                     
             }
@@ -138,7 +161,7 @@ namespace Scripts.Enemy
        
         
         #endregion
-        #region Behaviour of Enemy
+        #region Coroutines
 
         IEnumerator IDLE()
         {
@@ -158,9 +181,24 @@ namespace Scripts.Enemy
         IEnumerator ALERT()
         {
             yield return new WaitForSeconds(GameManager.instance.slimeIdleWaitTime);
+            if (isPlayerVisible)
+            {
+                ChangeState(EnemyState.FOLLOW);
+            }
+            else
+            {
+                StayStill(10);
+            }
             
         }
 
+        IEnumerator ATTACK()
+        {
+            yield return new WaitForSeconds(GameManager.instance.slimeAttackDelay);
+            isAttack = false;
+        }
+
+       
         
         #endregion
         
@@ -196,14 +234,39 @@ namespace Scripts.Enemy
         #region OnTrigger
         void OnTriggerEnter(Collider other)
         {
+            isPlayerVisible = true;
             if (other.gameObject.tag == "Player" && enemyState!= EnemyState.FURY)
             {
                 ChangeState(EnemyState.ALERT);
             }
         }
-    
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.gameObject.tag == "Player")
+            {
+                isPlayerVisible = false;
+            }
+        }
 
         #endregion
+
+        void Attack()
+        {
+            if (!isAttack)
+            {
+                isAttack = true;
+                _anim.enemySetAttackAnimation();
+            }
+           
+        }
+
+        void AttackIsDone()
+        {
+
+            StartCoroutine("ATTACK");
+
+        }
     }
 
    

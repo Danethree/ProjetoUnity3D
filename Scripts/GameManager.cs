@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public  float slimeIdleWaitTime = 3f;
     private Transform player;
     public float slimeDistanceToAttack = 2.5f;
+    public float slimeAttackDelay = 1f;
     private void Awake()
     {
 

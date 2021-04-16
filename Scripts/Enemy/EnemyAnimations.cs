@@ -39,6 +39,10 @@ namespace Scripts.Enemy
             enemyAnim.SetBool("isAlert",isAlert);
         }
 
+        public void enemySetAttackAnimation()
+        {
+            enemyAnim.SetTrigger("Attack");
+        }
 
         #endregion
     }
